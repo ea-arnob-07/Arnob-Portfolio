@@ -1,0 +1,38 @@
+<!-- components/header.html -->
+<!-- BUG #10 (Syntax): <nav> tag is never closed — missing </nav> at the end -->
+
+<nav id="navbar">
+  <div class="nav-logo" id="navLogo" data-text="EA">EA</div>
+
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+
+  <a href="#contact" class="nav-cta">Hire Me</a>
+
+  <!-- BUG #11 (Syntax): button is missing type="button" AND id="hbg"
+       so hamburger click listener in script.js will throw:
+       Cannot read properties of null (reading 'addEventListener') -->
+ <button class="hamburger" id="hbg" type="button" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  
+</nav> <div class="mob-nav" id="mnav">
+  <button class="mob-close" id="mclose">&#10005;</button>
+  <a href="#about"          onclick="closeMN()">About</a>
+  <a href="#skills"         onclick="closeMN()">Skills</a>
+  <a href="#projects"       onclick="closeMN()">Projects</a>
+  <a href="#research"       onclick="closeMN()">Research</a>
+  <a href="#experience"     onclick="closeMN()">Experience</a>
+  <a href="#certifications" onclick="closeMN()">Certifications</a>
+  <a href="#workshops"      onclick="closeMN()">Workshops</a>
+  <a href="#contact"        onclick="closeMN()">Contact</a>
+</div>
