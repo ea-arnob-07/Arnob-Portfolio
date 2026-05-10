@@ -1,0 +1,127 @@
+<!-- components/contact.html -->
+
+<section id="contact">
+  <div class="container">
+    <div class="sec-hd">
+      <div class="sec-tag">10 — Contact</div>
+      <h2 class="sec-title">Let's <span class="g">Connect</span></h2>
+      <span class="draw-line"></span>
+      <p class="sec-sub">Open to data science roles, AI research collaborations, and internship opportunities.</p>
+    </div>
+
+    <div class="contact-grid">
+
+      <div class="reveal-l">
+        <div class="contact-left">
+          <h3>Get In Touch</h3>
+          <p>I'm actively looking for data science internships, research collaborations,
+          and AI project opportunities. If you're working on something exciting — reach out.</p>
+        </div>
+
+        <div class="contact-items">
+          <a href="mailto:eaarnob178@gmail.com" class="ci">
+            <div class="ci-ic">@</div>
+            <div><div class="ci-lbl">Email</div><div class="ci-val">eaarnob178@gmail.com</div></div>
+          </a>
+          <div class="ci">
+            <div class="ci-ic">#</div>
+            <div><div class="ci-lbl">Phone</div><div class="ci-val">+8801313602221</div></div>
+          </div>
+          <div class="ci">
+            <div class="ci-ic">U</div>
+            <div><div class="ci-lbl">University</div><div class="ci-val">Daffodil International University</div></div>
+          </div>
+        </div>
+
+        <!-- Location Map SVG -->
+        <div class="map-wrap reveal">
+          <svg viewBox="0 0 420 190" width="100%" height="190" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+            <defs>
+              <radialGradient id="mapGlow" cx="49%" cy="46%" r="30%">
+                <stop offset="0%"   stop-color="rgba(0,229,255,0.12)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+            <rect width="420" height="190" fill="#08082a"/>
+            <g stroke="rgba(79,142,247,0.07)" stroke-width="1">
+              <line x1="0" y1="38"  x2="420" y2="38"/>
+              <line x1="0" y1="76"  x2="420" y2="76"/>
+              <line x1="0" y1="114" x2="420" y2="114"/>
+              <line x1="0" y1="152" x2="420" y2="152"/>
+              <line x1="84"  y1="0" x2="84"  y2="190"/>
+              <line x1="168" y1="0" x2="168" y2="190"/>
+              <line x1="252" y1="0" x2="252" y2="190"/>
+              <line x1="336" y1="0" x2="336" y2="190"/>
+            </g>
+            <path d="M185,28 L218,26 L245,38 L260,58 L264,82 L256,106 L240,126 L226,140 L210,148 L195,142 L180,126 L168,104 L165,78 L169,54 Z"
+              fill="rgba(79,142,247,0.065)" stroke="rgba(79,142,247,0.2)" stroke-width="1.2"/>
+            <circle cx="212" cy="92" r="22" fill="url(#mapGlow)"/>
+            <circle cx="212" cy="92" r="12" fill="rgba(0,229,255,0.07)"/>
+            <g class="map-pin-grp">
+              <circle cx="212" cy="86" r="10" fill="none" stroke="rgba(0,229,255,0.45)" stroke-width="1.5"/>
+              <circle cx="212" cy="86" r="5"  fill="#00e5ff"/>
+              <line x1="212" y1="96" x2="212" y2="106" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="212" cy="107" r="2" fill="rgba(0,229,255,0.35)"/>
+            </g>
+            <circle cx="212" cy="92" r="14" fill="none" stroke="rgba(0,229,255,0.28)" stroke-width="1">
+              <animate attributeName="r"       values="10;24;10" dur="3.2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.5;0;0.5" dur="3.2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="232" y="84" fill="#00e5ff"  font-family="Space Grotesk,sans-serif" font-size="12" font-weight="600">Dhaka</text>
+            <text x="232" y="98" fill="#9da8c7"  font-family="Space Grotesk,sans-serif" font-size="9.5">Bangladesh</text>
+            <text x="18"  y="180" fill="rgba(79,142,247,0.3)" font-size="7.5" font-family="JetBrains Mono,monospace">23.8103 N  90.4125 E</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- BUG #15 (Syntax): <div class="reveal-r"> is never closed before contact-form
+           — form is nested incorrectly inside reveal-r, breaking layout -->
+      <div class="reveal-r">
+        <div class="contact-form">
+          <div class="fg"><label>Your Name</label><input type="text" placeholder="John Doe"></div>
+          <div class="fg"><label>Email Address</label><input type="email" placeholder="john@example.com"></div>
+          <div class="fg"><label>Subject</label><input type="text" placeholder="Collaboration, internship..."></div>
+          <div class="fg">
+            <label>Message</label>
+            <textarea placeholder="Tell me about your opportunity or project..."></textarea>
+          </div>
+          <button class="btn-send" id="sendBtn">Send Message</button>
+        </div>
+        </div>
+      <!-- missi</divng </div> for reveal-r -->
+
+    </div><!-- contact-grid -->
+  </div><!-- container -->
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="f-inner">
+    <div class="f-logo">Estiuk Arafat Arnob</div>
+    <div class="social-links">
+      <a href="https://github.com/ea-arnob-07" target="_blank" rel="noopener" class="sl gh" title="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+        </svg>
+      </a>
+      <a href="https://bd.linkedin.com/in/estiuk-arnob-0350ba34a" target="_blank" rel="noopener" class="sl li" title="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      </a>
+      <a href="https://www.facebook.com/share/1JD8Gt7NK7/?mibextid=wwXIfr" target="_blank" rel="noopener" class="sl fb" title="Facebook">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M24 12.073C24 5.405 18.627 0 12 0 5.373 0 0 5.405 0 12.073c0 6.027 4.388 11.02 10.125 11.927v-8.437H7.078v-3.49h3.047V9.43c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.247h3.328l-.532 3.49h-2.796v8.437C19.612 23.093 24 18.1 24 12.073z"/>
+        </svg>
+      </a>
+      <a href="mailto:eaarnob178@gmail.com" class="sl em" title="Email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 7l10 7 10-7"/>
+        </svg>
+      </a>
+    </div>
+    <p class="f-text">Built by ARNOB &nbsp;&middot;&nbsp; AI Enthusiast &nbsp;&middot;&nbsp; Data Scientist &nbsp;&middot;&nbsp; ML Researcher</p>
+    <p class="f-text" style="margin-top:6px;font-size:.76rem;">2025 Estiuk Arafat Arnob &mdash; All rights reserved</p>
+  </div>
+</footer>
