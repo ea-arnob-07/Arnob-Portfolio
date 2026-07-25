@@ -2096,11 +2096,14 @@ footer {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(5, 5, 16, .97);
-  z-index: 99;
+  background: rgba(19, 12, 28, 0.98);
+  z-index: 9999;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 100px;
+  padding-bottom: 40px;
+  overflow-y: auto;
   gap: 24px;
 }
 
