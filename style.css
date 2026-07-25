@@ -2096,15 +2096,17 @@ footer {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(19, 12, 28, 0.98);
+  background: rgba(19, 12, 28, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 9999;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 100px;
-  padding-bottom: 40px;
+  padding-top: 80px;
+  padding-bottom: 30px;
   overflow-y: auto;
-  gap: 24px;
+  gap: 18px;
 }
 
 .mob-nav.open {
@@ -2114,9 +2116,10 @@ footer {
 .mob-nav a {
   color: var(--text);
   text-decoration: none;
-  font-family: var(--fh);
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-family: var(--fb);
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
   transition: color .2s;
 }
 
