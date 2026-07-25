@@ -2106,7 +2106,7 @@ footer {
   justify-content: center;
   padding: 40px 10%;
   overflow-y: auto;
-  gap: 15px 20px;
+  gap: 8px 20px;
 }
 
 .mob-nav.open {
@@ -2114,7 +2114,7 @@ footer {
 }
 
 .mob-nav a {
-  color: var(--text);
+  color: var(--blue);
   text-decoration: none;
   font-family: var(--fb);
   font-size: 0.95rem;
