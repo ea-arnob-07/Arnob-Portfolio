@@ -397,6 +397,7 @@ section {
   background: linear-gradient(135deg, var(--cyan), var(--blue), var(--purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
 
 .sec-title-word {
