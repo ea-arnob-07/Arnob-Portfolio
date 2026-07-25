@@ -2114,7 +2114,7 @@ footer {
 }
 
 .mob-nav a {
-  color: var(--blue);
+  color: var(--text2);
   text-decoration: none;
   font-family: var(--fb);
   font-size: 0.95rem;
