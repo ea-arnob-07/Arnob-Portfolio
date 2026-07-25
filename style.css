@@ -2096,7 +2096,7 @@ footer {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(19, 12, 28, 0.75);
+  background: rgba(19, 12, 28, 0.40);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   z-index: 9999;
@@ -2106,7 +2106,7 @@ footer {
   justify-content: center;
   padding: 40px 10%;
   overflow-y: auto;
-  gap: 8px 20px;
+  gap: 4px 15px;
 }
 
 .mob-nav.open {
@@ -2117,7 +2117,7 @@ footer {
   color: var(--text2);
   text-decoration: none;
   font-family: var(--fb);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: normal;
   transition: color .2s;
