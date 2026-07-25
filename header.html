@@ -2,7 +2,10 @@
 <!-- BUG #10 (Syntax): <nav> tag is never closed — missing </nav> at the end -->
 
 <nav id="navbar">
-  <div class="nav-logo" id="navLogo" data-text="EA">EA</div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <img src="img/profile.jpg" alt="Profile" style="width:34px; height:34px; border-radius:40%; object-fit:cover;">
+    <div class="nav-logo" id="navLogo" data-text="EA">EA</div>
+  </div>
 
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
@@ -19,7 +22,7 @@
   <!-- BUG #11 (Syntax): button is missing type="button" AND id="hbg"
        so hamburger click listener in script.js will throw:
        Cannot read properties of null (reading 'addEventListener') -->
- <button class="hamburger" aria-label="Menu">
+  <button type="button" id="hbg" class="hamburger" aria-label="Menu">
     <span></span>
     <span></span>
     <span></span>
@@ -36,3 +39,4 @@
   <a href="#workshops"      onclick="closeMN()">Workshops</a>
   <a href="#contact"        onclick="closeMN()">Contact</a>
 </div>
+</nav>
