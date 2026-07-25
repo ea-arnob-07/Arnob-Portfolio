@@ -2104,9 +2104,9 @@ footer {
   flex-wrap: wrap;
   align-content: center;
   justify-content: center;
-  padding: 40px 5%;
+  padding: 40px 10%;
   overflow-y: auto;
-  gap: 25px 35px;
+  gap: 15px 20px;
 }
 
 .mob-nav.open {
@@ -2117,9 +2117,9 @@ footer {
   color: var(--text);
   text-decoration: none;
   font-family: var(--fb);
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: normal;
   transition: color .2s;
 }
 
