@@ -461,7 +461,7 @@ export function PortfolioExperience() {
       const message = form?.querySelector<HTMLTextAreaElement>("textarea");
       const name = inputs?.[0]?.value.trim() ?? "";
       const email = inputs?.[1]?.value.trim() ?? "";
-      const subject = inputs?.[2]?.value.trim() || "Portfolio Opportunity";
+      const subject = inputs?.[2]?.value.trim() || "Inquiry / Collaboration Opportunity";
       const body = message?.value.trim() ?? "";
 
       if (!name || !email || !body) {
@@ -482,7 +482,7 @@ export function PortfolioExperience() {
         `From: ${name}`,
         `Email: ${email}`,
       ].join("\n");
-      window.location.href = `mailto:eaarnob178@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`, "_blank");
       sendButton.textContent = "Opening your email app…";
       sendButton.style.background = "linear-gradient(135deg,#10b981,#059669)";
       window.setTimeout(() => {
@@ -929,7 +929,7 @@ export function PortfolioExperience() {
       <aside id="recruiter-rail" aria-label="Quick contact links">
         <span>CONNECT</span>
         <a
-          href="https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=We%20want%20to%20hire%20you%20or%20we%20want%20to%20connect%20with%20you" target="_blank"
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=We'd%20Like%20to%20Discuss%20an%20Opportunity" target="_blank"
           className="rail-link gmail"
           aria-label="Email Arnob with Gmail"
           title="Gmail"
