@@ -1,5 +1,11 @@
 <div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=40&duration=3000&pause=1000&color=00E5FF&center=true&vCenter=true&width=800&lines=Hi,+I'm+Estiuk+Arafat+Arnob;Welcome+to+my+Portfolio;Machine+Learning+Researcher;Data+Science+Enthusiast" alt="Typing SVG" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&section=header&text=Estiuk%20Arafat%20Arnob&fontSize=60&fontAlignY=35&desc=AI%20%7C%20Data%20Science%20%7C%20Machine%20Learning&descAlignY=60&descAlign=50" alt="Header" />
+</div>
+
+<br>
+
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=30&duration=3000&pause=1000&color=00E5FF&center=true&vCenter=true&width=800&lines=Welcome+to+my+Portfolio;Machine+Learning+Researcher;Data+Science+Enthusiast" alt="Typing SVG" />
 </div>
 
 <h3 align="center">Building intelligent solutions through machine learning, data science, and explainable AI.</h3>
