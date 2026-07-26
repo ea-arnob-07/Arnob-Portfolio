@@ -482,8 +482,8 @@ export function PortfolioExperience() {
         `From: ${name}`,
         `Email: ${email}`,
       ].join("\n");
-      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`, '_blank');
-      sendButton.textContent = "Opening Gmail…";
+      window.location.href = `mailto:eaarnob178@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
+      sendButton.textContent = "Opening your email app…";
       sendButton.style.background = "linear-gradient(135deg,#10b981,#059669)";
       window.setTimeout(() => {
         sendButton.textContent = "Send Message";
@@ -929,8 +929,7 @@ export function PortfolioExperience() {
       <aside id="recruiter-rail" aria-label="Quick contact links">
         <span>CONNECT</span>
         <a
-          href="https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=Inquiry%20Regarding%20Job%20Opportunity"
-          target="_blank"
+          href="mailto:eaarnob178@gmail.com?subject=Portfolio%20Opportunity"
           className="rail-link gmail"
           aria-label="Email Arnob with Gmail"
           title="Gmail"
@@ -958,7 +957,7 @@ export function PortfolioExperience() {
           </svg>
         </a>
         <a
-          href="https://www.linkedin.com/in/estiuk-arafat-arnob-0350ba34a"
+          href="https://bd.linkedin.com/in/estiuk-arnob-0350ba34a"
           target="_blank"
           rel="noopener"
           className="rail-link linkedin"
