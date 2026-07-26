@@ -47,7 +47,7 @@ const whyHireSection = `
         <h3>Looking for someone who learns fast and builds thoughtfully?</h3>
       </div>
       <div class="hire-cta-actions">
-        <a class="btn-p magnetic" href="https://bd.linkedin.com/in/estiuk-arnob-0350ba34a" target="_blank" rel="noopener">Start a Conversation</a>
+        <a class="btn-p magnetic" href="https://www.linkedin.com/in/estiuk-arafat-arnob-0350ba34a" target="_blank" rel="noopener">Start a Conversation</a>
         <a class="btn-o magnetic" href="#contact">Contact Details</a>
       </div>
     </div>
