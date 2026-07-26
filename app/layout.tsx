@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   title: "Estiuk Arafat Arnob — AI & Data Science",
   description:
@@ -9,8 +11,8 @@ export const metadata: Metadata = {
     "codex-preview": "development",
   },
   icons: {
-    icon: "/img/profile.jpg",
-    shortcut: "/img/profile.jpg",
+    icon: `${basePath}/img/profile.jpg`,
+    shortcut: `${basePath}/img/profile.jpg`,
   },
 };
 

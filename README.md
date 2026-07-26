@@ -1,96 +1,194 @@
-<div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&section=header&text=Estiuk%20Arafat%20Arnob&fontSize=60&fontAlignY=35&desc=AI%20%7C%20Data%20Science%20%7C%20Machine%20Learning&descAlignY=60&descAlign=50" alt="Header" />
-</div>
+# Arnob Portfolio
 
-<br>
+The public portfolio keeps its existing Next.js, Framer Motion, Three.js, and
+Tailwind-powered experience. Every portfolio section can now be managed from a
+private `/admin` page without changing code or redeploying.
 
-<div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=30&duration=3000&pause=1000&color=00E5FF&center=true&vCenter=true&width=800&lines=Welcome+to+my+Portfolio;Machine+Learning+Researcher;Data+Science+Enthusiast" alt="Typing SVG" />
-</div>
+## GitHub Pages deployment
 
-<h3 align="center">Building intelligent solutions through machine learning, data science, and explainable AI.</h3>
+This project is configured for the repository
+`https://github.com/ea-arnob-07/Arnob-Portfolio` and the production URL
+`https://ea-arnob-07.github.io/Arnob-Portfolio/`.
 
-<div align="center">
-  <a href="https://ea-arnob-07.github.io/Arnob-Portfolio/" target="_blank">
-    <img src="https://img.shields.io/badge/View%20Live%20Portfolio-00E5FF?style=for-the-badge&logo=googlechrome&logoColor=black" alt="Live Demo" />
-  </a>
-  <a href="https://www.linkedin.com/in/estiuk-arafat-arnob-0350ba34a" target="_blank">
-    <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
-  </a>
-  <a href="mailto:eaarnob178@gmail.com">
-    <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
-  </a>
-</div>
+The included `.github/workflows/deploy.yml` automatically creates a static
+Next.js export with the `/Arnob-Portfolio` base path and publishes it whenever
+the `main` branch changes. In GitHub, open **Settings → Pages** and set
+**Source** to **GitHub Actions**.
 
-<br>
+The production admin page is:
 
-<div align="center">
-  <img src="https://profile-counter.glitch.me/ea-arnob-07/count.svg" alt="Profile Views" />
-</div>
+`https://ea-arnob-07.github.io/Arnob-Portfolio/admin/`
 
----
+## One-time Supabase setup
 
-## 👨‍💻 About Me
-I'm a Computer Science & Engineering student at **Daffodil International University** with a CGPA of 4.00/4.00, driven by a deep passion for Artificial Intelligence, Machine Learning, and Data Science. 
+The site already contains the supplied Supabase Project URL and browser-safe
+publishable key. The database still needs its tables, image bucket, and
+security policies. The schema is idempotent, so run it again after receiving an
+updated project ZIP:
 
-Beyond coding, I am involved in AI Research, IEEE Workshops, Photography, Videography, and Esports. I constantly push boundaries to stay at the cutting edge of technology.
+1. Open the Supabase project.
+2. Open **SQL Editor** and choose **New query**.
+3. Copy all of `supabase/schema.sql`, paste it into the query, and press
+   **Run**.
+4. Open **Authentication → URL Configuration**.
+5. Set **Site URL** to
+   `https://ea-arnob-07.github.io/Arnob-Portfolio/`.
+6. Add both production admin forms as allowed redirect URLs:
+   `https://ea-arnob-07.github.io/Arnob-Portfolio/admin` and
+   `https://ea-arnob-07.github.io/Arnob-Portfolio/admin/`.
+7. Open `/admin`, enter `eaarnob178@gmail.com`, choose a password with at
+   least eight characters, and press **First time? Create Admin Account**.
+8. Confirm the email if Supabase asks, then sign in.
 
-<br>
+The SQL imports every existing project and certificate, creates the full-site
+content record and public profile-picture bucket, enables public read-only
+access, and restricts every create, update, upload, and delete operation to
+`eaarnob178@gmail.com`.
 
-## 🚀 Tech Stack & Skills
-<div align="center">
-  <img src="https://skillicons.dev/icons?i=python,java,mysql,bash,c,git,github,vscode" />
-  <br>
-  <br>
-  <img src="https://img.shields.io/badge/Machine%20Learning-Random%20Forest%20|%20SVM%20|%20KNN-00E5FF?style=flat-square" />
-  <img src="https://img.shields.io/badge/Explainable%20AI-SHAP%20|%20LIME-FF0055?style=flat-square" />
-  <img src="https://img.shields.io/badge/Data%20Science-Pandas%20|%20NumPy%20|%20Scikit--Learn-FFDD00?style=flat-square" />
-</div>
+Never place a Supabase secret key or legacy `service_role` key in this project.
+The publishable key is protected by the Row Level Security policies installed
+by `supabase/schema.sql`.
 
-<br>
+### What can be managed
 
-## 🛠️ Featured Projects
+- Edit the name, availability badge, animated roles, hero description,
+  statistics, picture, and labels around the profile picture.
+- Edit every About paragraph, highlight, and personal-information row.
+- Create and remove Skills tabs, categories, proficiency bars, and technology
+  chips.
+- Edit the recruiter snapshot and hiring call-to-action.
+- Add, edit, reorder, publish, draft, and delete projects.
+- Store title, category, description, technologies, features, GitHub URL, and
+  live URL.
+- Add, edit, reorder, publish, draft, and delete certificates.
+- Store certificate name, issuer, badge, emoji icon, issue date, and
+  credential URL.
+- Add, edit, and remove Research and Experience entries.
+- Edit Workshops, Activities, all section headings, and footer text.
+- Edit email, phone, university, map label, GitHub, LinkedIn, Facebook, social
+  cards, the floating CONNECT dock, and contact-form text.
+- Upload a profile picture directly to Supabase Storage, or paste an external
+  image URL.
+- Refresh the public portfolio to see database changes immediately; no rebuild
+  or deployment is required.
 
-### 🏦 ATM Machine System
-A fully functional ATM simulation featuring core banking operations, secure PIN authentication, and a polished Java Swing interface backed by a live MySQL database.
-- **Tech Stack:** Java, Java Swing, JDBC, MySQL
+## Local development
 
-### 🐧 Shell-Based System Administration Toolkit
-A comprehensive Bash CLI project automating critical sysadmin tasks through modular, reusable shell scripts with a structured menu-driven interface.
-- **Tech Stack:** Bash, Linux, CSV Export
+```bash
+npm install
+npm run dev
+```
 
-### ⚙️ LogicScript Compiler
-A lightweight interpreter-based compiler for a custom logic scripting language built using Lex and Yacc.
-- **Tech Stack:** C, Lex/Flex, Yacc/Bison
-
-<br>
-
-## 🔬 Research & Innovation
-
-- **Explainable AI for Drug Addiction Prediction & Prevention:** Developing transparent ML models (Random Forest) with SHAP and LIME to predict risk factors and make black-box classifiers understandable for healthcare professionals.
-- **AI-Based Automated Presentation Evaluation System:** Building an intelligent multi-modal system evaluating presentations using NLP and Computer Vision.
-
-<br>
-
-## 🏆 Certifications & Achievements
-- **Champion Award:** District Mathematics Olympiad & Embedded System Workshop
-- **Academic Excellence:** CGPA 4.00/4.00 
-- **Verified Certifications:** AI Agents for Beginners (Simplilearn), CPC Programming, AWS Cloud Security Foundations, SkillUp Machine Learning.
-
-<br>
-
-## 📫 Get In Touch
-I'm actively looking for data science internships, research collaborations, and AI project opportunities!
-
-<p align="left">
-  <a href="https://www.linkedin.com/in/estiuk-arafat-arnob-0350ba34a"><img src="https://img.shields.io/badge/-Estiuk%20Arafat%20Arnob-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
-  <a href="mailto:eaarnob178@gmail.com"><img src="https://img.shields.io/badge/-eaarnob178@gmail.com-D14836?style=flat-square&logo=gmail&logoColor=white" alt="Email"/></a>
-  <a href="https://www.facebook.com/share/1JD8Gt7NK7/?mibextid=wwXIfr"><img src="https://img.shields.io/badge/-Estiuk%20Arnob-1877F2?style=flat-square&logo=facebook&logoColor=white" alt="Facebook"/></a>
-</p>
+Open `http://localhost:3000` for the portfolio and
+`http://localhost:3000/admin` for content management.
 
 ---
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/Trilokia/Trilokia/379277808c61ef204768a61bbc5d25bc7798ccf1/bottom_header.svg" />
-  <p><i>"Transforming raw data into meaningful, interpretable insight."</i></p>
-</div>
+## Vinext runtime notes
+
+A clean full-stack starter running on
+[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
+Drizzle support.
+
+## Prerequisites
+
+- Node.js `>=22.13.0`
+- Linux with `flock`, `curl`, and GNU `timeout`
+
+## Sites Lifecycle
+
+The Sites lifecycle CLI runs the locked dependency install before returning this checkout. Edit the source under `app/`, then checkpoint when a coherent milestone is ready to inspect or share. The remote Sites builder runs `npm run build` against the pushed commit. Do not repeat install or build as a normal pre-checkpoint step.
+
+This starter does not use `wrangler.jsonc`.
+
+`install:ci` is intentionally a single, non-retrying `npm ci`. It refuses a concurrent install for the same project, consumes a matching image-seeded npm cache with `--prefer-offline` while retaining registry fallback for a missing cache object, otherwise downloads and verifies the complete vinext tarball recorded in `package-lock.json`, limits npm to one socket, and terminates a stalled install. `build` applies a short timeout and then validates the Sites artifact. These helpers target Linux and use GNU `timeout`; they are not native macOS scripts.
+
+Scripts that need writable project-scoped home, npm, XDG, and temporary paths use `scripts/sites-env.sh`. The `dev` and `start` scripts honor the caller's runtime environment and keep Wrangler logs inside the checkout. The generated `.sites-runtime/` directory is disposable and ignored by Git.
+
+## Included Shape
+
+- edit site code under `app/`
+- `app/chatgpt-auth.ts` provides optional dispatch-owned ChatGPT sign-in helpers
+- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
+- `vite.config.ts` simulates declared bindings for local development
+- `db/index.ts` reads the D1 binding from the Cloudflare Worker environment
+- `db/schema.ts` starts intentionally empty
+- `examples/d1/` contains an optional D1 example surface
+- `drizzle.config.ts` supports local migration generation when needed
+
+## Workspace Auth Headers
+
+OpenAI workspace sites can read the current user's email from
+`oai-authenticated-user-email`.
+
+SIWC-authenticated workspace sites may also receive
+`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
+`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
+`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+
+Treat the full name as optional and fall back to email when it is absent:
+
+```tsx
+import { headers } from "next/headers";
+
+export default async function Home() {
+  const requestHeaders = await headers();
+  const email = requestHeaders.get("oai-authenticated-user-email");
+  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
+  const fullName =
+    encodedFullName &&
+    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
+      "percent-encoded-utf-8"
+      ? decodeURIComponent(encodedFullName)
+      : null;
+
+  const displayName = fullName ?? email;
+  // ...
+}
+```
+
+## Optional Dispatch-Owned ChatGPT Sign-In
+
+Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
+optional or required ChatGPT sign-in:
+
+- Use `getChatGPTUser()` for optional signed-in UI.
+- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
+  anonymous visitors through Sign in with ChatGPT.
+- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
+  browser links or actions.
+- Pass a same-origin relative `returnTo` path for the destination after sign-in
+  or sign-out. The helper validates and safely encodes it.
+- Mark protected pages with `export const dynamic = "force-dynamic"` because
+  they depend on per-request identity headers.
+
+Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
+OAuth cookies, and identity header injection. Do not implement app routes for
+those reserved paths. Routes that do not import and call the helper remain
+anonymous-compatible.
+
+SIWC establishes identity only; it does not prove workspace membership. Use the
+Sites hosting platform's access policy controls for workspace-wide restrictions,
+or enforce explicit server-side membership or allowlist checks.
+
+Use SIWC for account pages, user-specific dashboards, saved records, and write
+actions tied to the current ChatGPT user. Leave public content anonymous.
+
+## Diagnostic Commands
+
+- `npm run install:ci`: perform the one bounded lockfile install
+- `npm run dev`: start the Vite/Vinext development server
+- `npm run build`: build and validate the deployable Sites artifact
+- `npm run start`: start the built Vinext application
+- `npm test`: build, validate, and verify the rendered development-preview metadata
+- `npm run validate:artifact`: recheck an existing artifact's manifest and ESM `default.fetch` export
+- `npm run db:generate`: generate Drizzle migrations after schema changes
+
+Use build and validation commands for targeted diagnosis after a remote failure, not as part of the normal checkpoint path.
+
+The timeout defaults can be overridden for a controlled canary with `SITES_INSTALL_TIMEOUT`, `SITES_INSTALL_KILL_AFTER`, `SITES_BUILD_TIMEOUT`, and `SITES_BUILD_KILL_AFTER`. A timeout fails the command; the helpers never retry an unchanged install or build.
+
+## Learn More
+
+- [vinext Documentation](https://github.com/cloudflare/vinext)
+- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)

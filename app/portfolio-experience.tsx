@@ -8,12 +8,24 @@ import {
   useSpring,
   useMotionValueEvent,
 } from "framer-motion";
-import { type MouseEvent as ReactMouseEvent, useEffect, useRef } from "react";
+import {
+  type MouseEvent as ReactMouseEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import * as THREE from "three";
+import {
+  ARNOB_EMAIL,
+  ARNOB_LINKEDIN_URL,
+  createGmailComposeUrl,
+  OPPORTUNITY_SUBJECT,
+} from "./lib/contact-links";
+import { fallbackPortfolioContent } from "./lib/portfolio-content";
+import { fetchPublishedPortfolioContent } from "./lib/supabase";
 import { portfolioMarkup } from "./portfolio-markup";
 import { buildPremiumPortfolioMarkup } from "./premium-markup";
-
-const premiumPortfolioMarkup = buildPremiumPortfolioMarkup(portfolioMarkup);
 
 type MovingParticle = {
   x: number;
@@ -23,6 +35,18 @@ type MovingParticle = {
   phase: number;
   tone: number;
 };
+
+function safeProfileLink(value: string | undefined, fallback: string) {
+  if (!value) return fallback;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:"
+      ? url.toString()
+      : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function ThreeParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -373,6 +397,45 @@ function revealVisibleContent(root: HTMLElement) {
 }
 
 export function PortfolioExperience() {
+  const [portfolioContent, setPortfolioContent] = useState(
+    fallbackPortfolioContent,
+  );
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  const portfolioMarkupWithAssetPaths = useMemo(
+    () =>
+      portfolioMarkup.replaceAll(
+        "/img/profile.jpg",
+        `${basePath}/img/profile.jpg`,
+      ),
+    [basePath],
+  );
+  const contentWithAssetPaths = useMemo(() => {
+    const profileImageUrl = portfolioContent.site.hero.profileImageUrl;
+    const resolvedProfileImageUrl =
+      profileImageUrl.startsWith("/") &&
+      !profileImageUrl.startsWith(`${basePath}/`)
+        ? `${basePath}${profileImageUrl}`
+        : profileImageUrl;
+
+    return {
+      ...portfolioContent,
+      site: {
+        ...portfolioContent.site,
+        hero: {
+          ...portfolioContent.site.hero,
+          profileImageUrl: resolvedProfileImageUrl,
+        },
+      },
+    };
+  }, [basePath, portfolioContent]);
+  const premiumPortfolioMarkup = useMemo(
+    () =>
+      buildPremiumPortfolioMarkup(
+        portfolioMarkupWithAssetPaths,
+        contentWithAssetPaths,
+      ),
+    [contentWithAssetPaths, portfolioMarkupWithAssetPaths],
+  );
   const contentRef = useRef<HTMLDivElement>(null);
   const burstCanvasRef = useRef<HTMLCanvasElement>(null);
   const { scrollYProgress } = useScroll();
@@ -381,6 +444,33 @@ export function PortfolioExperience() {
     mass: 0.2,
     stiffness: 200,
   });
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadContent = async () => {
+      try {
+        const content = await fetchPublishedPortfolioContent();
+        if (isActive) setPortfolioContent(content);
+      } catch {
+        // Keep the verified built-in portfolio content until Supabase is ready.
+      }
+    };
+
+    const refreshVisibleContent = () => {
+      if (document.visibilityState === "visible") void loadContent();
+    };
+
+    void loadContent();
+    window.addEventListener("focus", loadContent);
+    document.addEventListener("visibilitychange", refreshVisibleContent);
+
+    return () => {
+      isActive = false;
+      window.removeEventListener("focus", loadContent);
+      document.removeEventListener("visibilitychange", refreshVisibleContent);
+    };
+  }, []);
 
   useMotionValueEvent(scrollYProgress, "change", () => {
     const root = contentRef.current;
@@ -461,7 +551,7 @@ export function PortfolioExperience() {
       const message = form?.querySelector<HTMLTextAreaElement>("textarea");
       const name = inputs?.[0]?.value.trim() ?? "";
       const email = inputs?.[1]?.value.trim() ?? "";
-      const subject = inputs?.[2]?.value.trim() || "Inquiry / Collaboration Opportunity";
+      const subject = inputs?.[2]?.value.trim() || OPPORTUNITY_SUBJECT;
       const body = message?.value.trim() ?? "";
 
       if (!name || !email || !body) {
@@ -479,11 +569,18 @@ export function PortfolioExperience() {
         "",
         body,
         "",
-        `From: ${name}`,
-        `Email: ${email}`,
+        `Full Name: ${name}`,
+        `Email Address: ${email}`,
       ].join("\n");
-      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`, "_blank");
-      sendButton.textContent = "Opening your email app…";
+      const contactEmail =
+        portfolioContent.site.contact.email.trim() || ARNOB_EMAIL;
+      const gmailUrl = createGmailComposeUrl({
+        to: contactEmail,
+        subject,
+        body: mailBody,
+      });
+      window.location.href = gmailUrl;
+      sendButton.textContent = "Opening Gmail…";
       sendButton.style.background = "linear-gradient(135deg,#10b981,#059669)";
       window.setTimeout(() => {
         sendButton.textContent = "Send Message";
@@ -885,6 +982,31 @@ export function PortfolioExperience() {
     };
   }, []);
 
+  const githubUrl = safeProfileLink(
+    portfolioContent.site.social.platforms.find(
+      (platform) => platform.kind === "github",
+    )?.url,
+    "https://github.com/ea-arnob-07",
+  );
+  const linkedInUrl = safeProfileLink(
+    portfolioContent.site.social.platforms.find(
+      (platform) => platform.kind === "linkedin",
+    )?.url,
+    ARNOB_LINKEDIN_URL,
+  );
+  const facebookUrl = safeProfileLink(
+    portfolioContent.site.social.platforms.find(
+      (platform) => platform.kind === "facebook",
+    )?.url,
+    "https://www.facebook.com/share/1JD8Gt7NK7/?mibextid=wwXIfr",
+  );
+  const contactEmail =
+    portfolioContent.site.contact.email.trim() || ARNOB_EMAIL;
+  const gmailComposeUrl = createGmailComposeUrl({
+    to: contactEmail,
+    subject: OPPORTUNITY_SUBJECT,
+  });
+
   return (
     <motion.main
       className="min-h-screen"
@@ -929,7 +1051,9 @@ export function PortfolioExperience() {
       <aside id="recruiter-rail" aria-label="Quick contact links">
         <span>CONNECT</span>
         <a
-          href="https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=We'd%20Like%20to%20Discuss%20an%20Opportunity" target="_blank"
+          href={gmailComposeUrl}
+          target="_blank"
+          rel="noopener"
           className="rail-link gmail"
           aria-label="Email Arnob with Gmail"
           title="Gmail"
@@ -942,7 +1066,7 @@ export function PortfolioExperience() {
           </svg>
         </a>
         <a
-          href="https://github.com/ea-arnob-07"
+          href={githubUrl}
           target="_blank"
           rel="noopener"
           className="rail-link github"
@@ -957,7 +1081,7 @@ export function PortfolioExperience() {
           </svg>
         </a>
         <a
-          href="https://bd.linkedin.com/in/estiuk-arnob-0350ba34a"
+          href={linkedInUrl}
           target="_blank"
           rel="noopener"
           className="rail-link linkedin"
@@ -972,7 +1096,7 @@ export function PortfolioExperience() {
           </svg>
         </a>
         <a
-          href="https://www.facebook.com/share/1JD8Gt7NK7/?mibextid=wwXIfr"
+          href={facebookUrl}
           target="_blank"
           rel="noopener"
           className="rail-link facebook"
@@ -988,6 +1112,7 @@ export function PortfolioExperience() {
         </a>
       </aside>
       <div
+        className="portfolio-content"
         ref={contentRef}
         onClick={handleContentClick}
         dangerouslySetInnerHTML={{ __html: premiumPortfolioMarkup }}
