@@ -11,6 +11,9 @@ import {
 import { type MouseEvent as ReactMouseEvent, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { portfolioMarkup } from "./portfolio-markup";
+import { buildPremiumPortfolioMarkup } from "./premium-markup";
+
+const premiumPortfolioMarkup = buildPremiumPortfolioMarkup(portfolioMarkup);
 
 type MovingParticle = {
   x: number;
@@ -390,25 +393,39 @@ export function PortfolioExperience() {
     root.querySelectorAll<HTMLElement>("section[id]").forEach((section) => {
       if (window.scrollY >= section.offsetTop - 220) current = section.id;
     });
-    root.querySelectorAll<HTMLAnchorElement>(".nav-links a").forEach((link) => {
-      link.classList.toggle(
-        "active-link",
-        link.getAttribute("href") === `#${current}`,
-      );
-    });
+    root
+      .querySelectorAll<HTMLAnchorElement>(".nav-links a, .mob-nav-links a")
+      .forEach((link) => {
+        link.classList.toggle(
+          "active-link",
+          link.getAttribute("href") === `#${current}`,
+        );
+      });
     revealVisibleContent(root);
   });
 
   const handleContentClick = (event: ReactMouseEvent<HTMLDivElement>) => {
     const target = event.target as Element;
     const mobileNav = contentRef.current?.querySelector<HTMLElement>("#mnav");
+    const mobileMenuTrigger =
+      contentRef.current?.querySelector<HTMLButtonElement>("#hbg");
+    const setMobileMenuOpen = (isOpen: boolean) => {
+      mobileNav?.classList.toggle("open", isOpen);
+      mobileNav?.setAttribute("aria-hidden", String(!isOpen));
+      mobileMenuTrigger?.setAttribute("aria-expanded", String(isOpen));
+      document.body.classList.toggle("mobile-menu-open", isOpen);
+    };
 
     if (target.closest("#hbg")) {
-      mobileNav?.classList.add("open");
+      setMobileMenuOpen(true);
       return;
     }
-    if (target.closest("#mclose") || target.closest("[data-close-mobile]")) {
-      mobileNav?.classList.remove("open");
+    if (
+      target === mobileNav ||
+      target.closest("#mclose") ||
+      target.closest("[data-close-mobile]")
+    ) {
+      setMobileMenuOpen(false);
     }
 
     const tabButton = target.closest<HTMLButtonElement>("[data-tab]");
@@ -439,7 +456,34 @@ export function PortfolioExperience() {
 
     const sendButton = target.closest<HTMLButtonElement>("#sendBtn");
     if (sendButton) {
-      sendButton.textContent = "Message Sent ✓";
+      const form = sendButton.closest<HTMLElement>(".contact-form");
+      const inputs = form?.querySelectorAll<HTMLInputElement>("input");
+      const message = form?.querySelector<HTMLTextAreaElement>("textarea");
+      const name = inputs?.[0]?.value.trim() ?? "";
+      const email = inputs?.[1]?.value.trim() ?? "";
+      const subject = inputs?.[2]?.value.trim() || "Portfolio Opportunity";
+      const body = message?.value.trim() ?? "";
+
+      if (!name || !email || !body) {
+        sendButton.textContent = "Please complete name, email & message";
+        sendButton.classList.add("needs-input");
+        window.setTimeout(() => {
+          sendButton.textContent = "Send Message";
+          sendButton.classList.remove("needs-input");
+        }, 2600);
+        return;
+      }
+
+      const mailBody = [
+        `Hello Arnob,`,
+        "",
+        body,
+        "",
+        `From: ${name}`,
+        `Email: ${email}`,
+      ].join("\n");
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`, '_blank');
+      sendButton.textContent = "Opening Gmail…";
       sendButton.style.background = "linear-gradient(135deg,#10b981,#059669)";
       window.setTimeout(() => {
         sendButton.textContent = "Send Message";
@@ -467,6 +511,11 @@ export function PortfolioExperience() {
     const navbar = root.querySelector<HTMLElement>("#navbar");
     const cursor = document.querySelector<HTMLElement>("#cur");
     const cursorRing = document.querySelector<HTMLElement>("#cur-r");
+    const spotlight = document.querySelector<HTMLElement>("#cursor-spotlight");
+    const heroOrb = root.querySelector<HTMLElement>(".hero-orb");
+    const finePointer =
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let mouseX = 0;
     let mouseY = 0;
     let cursorX = 0;
@@ -478,6 +527,18 @@ export function PortfolioExperience() {
     const onPointerMove = (event: PointerEvent) => {
       mouseX = event.clientX;
       mouseY = event.clientY;
+      if (spotlight) {
+        spotlight.style.setProperty("--spot-x", `${event.clientX}px`);
+        spotlight.style.setProperty("--spot-y", `${event.clientY}px`);
+      }
+      if (heroOrb && finePointer) {
+        const horizontal = event.clientX / window.innerWidth - 0.5;
+        const vertical = event.clientY / window.innerHeight - 0.5;
+        heroOrb.style.setProperty("--orb-x", `${horizontal * 12}px`);
+        heroOrb.style.setProperty("--orb-y", `${vertical * 9}px`);
+        heroOrb.style.setProperty("--orb-rx", `${vertical * -3.2}deg`);
+        heroOrb.style.setProperty("--orb-ry", `${horizontal * 4.2}deg`);
+      }
     };
     const moveCursor = () => {
       cursorX += (mouseX - cursorX) * 0.4;
@@ -499,7 +560,61 @@ export function PortfolioExperience() {
     cleanupCallbacks.push(() => {
       document.removeEventListener("pointermove", onPointerMove);
       cancelAnimationFrame(cursorFrame);
+      heroOrb?.style.removeProperty("--orb-x");
+      heroOrb?.style.removeProperty("--orb-y");
+      heroOrb?.style.removeProperty("--orb-rx");
+      heroOrb?.style.removeProperty("--orb-ry");
     });
+
+    if (finePointer) {
+      const tiltCards = Array.from(
+        root.querySelectorAll<HTMLElement>(".proj-card,.hire-card"),
+      );
+      tiltCards.forEach((card) => {
+        const onCardMove = (event: PointerEvent) => {
+          const rect = card.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width;
+          const y = (event.clientY - rect.top) / rect.height;
+          card.style.setProperty("--card-x", `${x * 100}%`);
+          card.style.setProperty("--card-y", `${y * 100}%`);
+          card.style.transform = `perspective(950px) rotateX(${(0.5 - y) * 5}deg) rotateY(${(x - 0.5) * 6}deg) translateY(-6px)`;
+        };
+        const onCardLeave = () => {
+          card.style.removeProperty("transform");
+          card.style.setProperty("--card-x", "50%");
+          card.style.setProperty("--card-y", "50%");
+        };
+        card.addEventListener("pointermove", onCardMove);
+        card.addEventListener("pointerleave", onCardLeave);
+        cleanupCallbacks.push(() => {
+          card.removeEventListener("pointermove", onCardMove);
+          card.removeEventListener("pointerleave", onCardLeave);
+        });
+      });
+
+      const magneticElements = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          ".magnetic,.btn-p,.btn-o,.nav-cta,.btn-send,#recruiter-rail a",
+        ),
+      );
+      magneticElements.forEach((element) => {
+        const onMagneticMove = (event: PointerEvent) => {
+          const rect = element.getBoundingClientRect();
+          const x = event.clientX - (rect.left + rect.width / 2);
+          const y = event.clientY - (rect.top + rect.height / 2);
+          element.style.transform = `translate3d(${x * 0.13}px,${y * 0.16}px,0)`;
+        };
+        const onMagneticLeave = () => {
+          element.style.removeProperty("transform");
+        };
+        element.addEventListener("pointermove", onMagneticMove);
+        element.addEventListener("pointerleave", onMagneticLeave);
+        cleanupCallbacks.push(() => {
+          element.removeEventListener("pointermove", onMagneticMove);
+          element.removeEventListener("pointerleave", onMagneticLeave);
+        });
+      });
+    }
 
     const heroName = root.querySelector<HTMLElement>("#heroNameInner");
     if (heroName && !heroName.querySelector(".hero-name-letter")) {
@@ -536,35 +651,6 @@ export function PortfolioExperience() {
             },
           );
         });
-    }
-
-    const typed = root.querySelector<HTMLElement>("#typed");
-    if (typed) {
-      const titles = [
-        "AI Enthusiast",
-        "ML Engineer",
-        "Data Scientist",
-        "XAI Researcher",
-      ];
-      let titleIndex = 0;
-      let characterIndex = 0;
-      let deleting = false;
-      const type = () => {
-        const title = titles[titleIndex];
-        characterIndex += deleting ? -1 : 1;
-        typed.textContent = title.slice(0, characterIndex);
-        if (!deleting && characterIndex === title.length) {
-          deleting = true;
-          schedule(type, 1900);
-          return;
-        }
-        if (deleting && characterIndex === 0) {
-          deleting = false;
-          titleIndex = (titleIndex + 1) % titles.length;
-        }
-        schedule(type, deleting ? 55 : 88);
-      };
-      schedule(type, 900);
     }
 
     const logo = root.querySelector<HTMLElement>("#navLogo");
@@ -712,6 +798,7 @@ export function PortfolioExperience() {
     const burstColors: Record<string, string> = {
       about: "rgba(0,229,255,A)",
       skills: "rgba(79,142,247,A)",
+      "why-hire": "rgba(118,86,255,A)",
       projects: "rgba(0,229,255,A)",
       research: "rgba(168,85,247,A)",
       experience: "rgba(0,229,255,A)",
@@ -779,6 +866,25 @@ export function PortfolioExperience() {
     };
   });
 
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      const mobileNav = contentRef.current?.querySelector<HTMLElement>("#mnav");
+      const mobileMenuTrigger =
+        contentRef.current?.querySelector<HTMLButtonElement>("#hbg");
+      mobileNav?.classList.remove("open");
+      mobileNav?.setAttribute("aria-hidden", "true");
+      mobileMenuTrigger?.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("mobile-menu-open");
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+      document.body.classList.remove("mobile-menu-open");
+    };
+  }, []);
+
   return (
     <motion.main
       className="min-h-screen"
@@ -788,6 +894,7 @@ export function PortfolioExperience() {
     >
       <div id="cur" aria-hidden="true" />
       <div id="cur-r" aria-hidden="true" />
+      <div id="cursor-spotlight" aria-hidden="true" />
       <motion.div
         id="sp"
         aria-hidden="true"
@@ -819,10 +926,72 @@ export function PortfolioExperience() {
         }}
         transition={{ duration: 28, ease: "easeInOut", repeat: Infinity }}
       />
+      <aside id="recruiter-rail" aria-label="Quick contact links">
+        <span>CONNECT</span>
+        <a
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=Inquiry%20Regarding%20Job%20Opportunity"
+          target="_blank"
+          className="rail-link gmail"
+          aria-label="Email Arnob with Gmail"
+          title="Gmail"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.691 2.28 24 3.434 24 5.457Z"
+            />
+          </svg>
+        </a>
+        <a
+          href="https://github.com/ea-arnob-07"
+          target="_blank"
+          rel="noopener"
+          className="rail-link github"
+          aria-label="Arnob on GitHub"
+          title="GitHub"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10Z"
+            />
+          </svg>
+        </a>
+        <a
+          href="https://www.linkedin.com/in/estiuk-arafat-arnob-0350ba34a"
+          target="_blank"
+          rel="noopener"
+          className="rail-link linkedin"
+          aria-label="Arnob on LinkedIn"
+          title="LinkedIn"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065Zm1.782 13.019H3.555V9h3.564v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"
+            />
+          </svg>
+        </a>
+        <a
+          href="https://www.facebook.com/share/1JD8Gt7NK7/?mibextid=wwXIfr"
+          target="_blank"
+          rel="noopener"
+          className="rail-link facebook"
+          aria-label="Arnob on Facebook"
+          title="Facebook"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M24 12.073C24 5.405 18.627 0 12 0 5.373 0 0 5.405 0 12.073c0 6.027 4.388 11.02 10.125 11.927v-8.437H7.078v-3.49h3.047V9.43c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.247h3.328l-.532 3.49h-2.796v8.437C19.612 23.093 24 18.1 24 12.073Z"
+            />
+          </svg>
+        </a>
+      </aside>
       <div
         ref={contentRef}
         onClick={handleContentClick}
-        dangerouslySetInnerHTML={{ __html: portfolioMarkup }}
+        dangerouslySetInnerHTML={{ __html: premiumPortfolioMarkup }}
       />
     </motion.main>
   );

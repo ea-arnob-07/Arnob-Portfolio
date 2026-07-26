@@ -1,14 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
-  basePath: "/Arnob-Portfolio",
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  }
+  /* config options here */
 };
 
 export default nextConfig;
