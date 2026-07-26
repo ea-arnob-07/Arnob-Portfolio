@@ -929,7 +929,7 @@ export function PortfolioExperience() {
       <aside id="recruiter-rail" aria-label="Quick contact links">
         <span>CONNECT</span>
         <a
-          href="mailto:eaarnob178@gmail.com?subject=Portfolio%20Opportunity"
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=eaarnob178@gmail.com&su=We%20want%20to%20hire%20you%20or%20we%20want%20to%20connect%20with%20you" target="_blank"
           className="rail-link gmail"
           aria-label="Email Arnob with Gmail"
           title="Gmail"
