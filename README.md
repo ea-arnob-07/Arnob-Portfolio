@@ -57,20 +57,25 @@ by `supabase/schema.sql`.
 - Create and remove Skills tabs, categories, proficiency bars, and technology
   chips.
 - Edit the recruiter snapshot and hiring call-to-action.
-- Add, edit, reorder, publish, draft, and delete projects.
+- Add, edit, reorder, publish, draft, move projects to Recently Deleted, and
+  restore them later.
 - Store title, category, description, technologies, features, GitHub URL, and
   live URL.
-- Add, edit, reorder, publish, draft, and delete certificates.
+- Add, edit, reorder, publish, draft, move certificates to Recently Deleted,
+  and restore them later.
 - Store certificate name, issuer, badge, emoji icon, issue date, and
   credential URL.
-- Add, edit, and remove Research and Experience entries.
+- Add, edit, reorder, and remove Research and Experience entries.
+- Reorder all repeatable hero, About, Skills, Research, Experience, Workshop,
+  Activity, and Social items even after they have been created.
 - Edit Workshops, Activities, all section headings, and footer text.
 - Edit email, phone, university, map label, GitHub, LinkedIn, Facebook, social
   cards, the floating CONNECT dock, and contact-form text.
 - Upload a profile picture directly to Supabase Storage, or paste an external
   image URL.
-- Refresh the public portfolio to see database changes immediately; no rebuild
-  or deployment is required.
+- Keep an open public portfolio tab synchronized through realtime updates,
+  same-browser admin notifications, focus refreshes, and a quiet fallback
+  refresh; no rebuild or deployment is required.
 
 ## Local development
 

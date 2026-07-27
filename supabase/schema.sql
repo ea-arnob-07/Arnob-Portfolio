@@ -48,6 +48,7 @@ create table if not exists public.portfolio_projects (
   live_url text,
   display_order integer not null default 0,
   published boolean not null default true,
+  deleted_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint portfolio_projects_slug_present check (char_length(trim(slug)) > 0),
@@ -66,6 +67,7 @@ create table if not exists public.portfolio_certificates (
   credential_url text,
   display_order integer not null default 0,
   published boolean not null default true,
+  deleted_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint portfolio_certificates_slug_present check (char_length(trim(slug)) > 0),
@@ -82,6 +84,12 @@ create table if not exists public.portfolio_site_content (
   constraint portfolio_site_content_is_object
     check (jsonb_typeof(content) = 'object')
 );
+
+-- Safe migrations for projects created with an earlier schema version.
+alter table public.portfolio_projects
+  add column if not exists deleted_at timestamptz;
+alter table public.portfolio_certificates
+  add column if not exists deleted_at timestamptz;
 
 create or replace function public.set_portfolio_updated_at()
 returns trigger
@@ -122,7 +130,7 @@ create policy portfolio_projects_public_read
 on public.portfolio_projects
 for select
 to anon, authenticated
-using (published = true);
+using (published = true and deleted_at is null);
 
 drop policy if exists portfolio_projects_admin_all
 on public.portfolio_projects;
@@ -139,7 +147,7 @@ create policy portfolio_certificates_public_read
 on public.portfolio_certificates
 for select
 to anon, authenticated
-using (published = true);
+using (published = true and deleted_at is null);
 
 drop policy if exists portfolio_certificates_admin_all
 on public.portfolio_certificates;
@@ -174,6 +182,38 @@ grant insert, update, delete on table public.portfolio_certificates to authentic
 grant select on table public.portfolio_site_content to anon, authenticated;
 grant insert, update, delete on table public.portfolio_site_content
 to authenticated;
+
+insert into public.portfolio_site_content (id, content)
+values ('main', '{}'::jsonb)
+on conflict (id) do nothing;
+
+-- Let an open portfolio tab refresh immediately after an admin update.
+do $$
+begin
+  alter publication supabase_realtime
+    add table public.portfolio_projects;
+exception
+  when duplicate_object then null;
+end
+$$;
+
+do $$
+begin
+  alter publication supabase_realtime
+    add table public.portfolio_certificates;
+exception
+  when duplicate_object then null;
+end
+$$;
+
+do $$
+begin
+  alter publication supabase_realtime
+    add table public.portfolio_site_content;
+exception
+  when duplicate_object then null;
+end
+$$;
 
 insert into storage.buckets (
   id,

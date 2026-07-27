@@ -7,13 +7,18 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type {
   PortfolioCertificate,
   PortfolioProject,
 } from "../lib/portfolio-content";
-import { slugify } from "../lib/portfolio-content";
+import {
+  fallbackCertificates,
+  fallbackProjects,
+  slugify,
+} from "../lib/portfolio-content";
 import {
   cloneSiteContent,
   fallbackSiteContent,
@@ -147,11 +152,65 @@ export default function AdminPage() {
   const [uploadBusy, setUploadBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [setupNeeded, setSetupNeeded] = useState(false);
+  const [siteUndoStack, setSiteUndoStack] = useState<
+    PortfolioSiteContent[]
+  >([]);
+  const lastSiteChangeAt = useRef(0);
 
   const adminName = useMemo(
     () => session?.user.email?.split("@")[0] ?? "Arnob",
     [session],
   );
+  const activeProjects = useMemo(
+    () => projects.filter((item) => !item.deleted_at),
+    [projects],
+  );
+  const deletedProjects = useMemo(
+    () => projects.filter((item) => Boolean(item.deleted_at)),
+    [projects],
+  );
+  const activeCertificates = useMemo(
+    () => certificates.filter((item) => !item.deleted_at),
+    [certificates],
+  );
+  const deletedCertificates = useMemo(
+    () => certificates.filter((item) => Boolean(item.deleted_at)),
+    [certificates],
+  );
+
+  const announceContentUpdate = useCallback(() => {
+    const version = String(Date.now());
+    window.localStorage.setItem("arnob-portfolio-content-version", version);
+    window.dispatchEvent(new Event("arnob-portfolio-content-updated"));
+  }, []);
+
+  const updateSiteDraft = useCallback(
+    (nextContent: PortfolioSiteContent) => {
+      const now = Date.now();
+      if (now - lastSiteChangeAt.current > 700) {
+        setSiteUndoStack((history) => [
+          ...history.slice(-39),
+          cloneSiteContent(siteContent),
+        ]);
+      }
+      lastSiteChangeAt.current = now;
+      setSiteContent(nextContent);
+    },
+    [siteContent],
+  );
+
+  const undoSiteDraft = useCallback(() => {
+    setSiteUndoStack((history) => {
+      const previous = history.at(-1);
+      if (!previous) return history;
+      setSiteContent(cloneSiteContent(previous));
+      lastSiteChangeAt.current = 0;
+      setNotice(
+        "Last content change restored. Save this section to publish the undo.",
+      );
+      return history.slice(0, -1);
+    });
+  }, []);
 
   const acceptSession = useCallback(async (nextSession: Session | null) => {
     const sessionEmail = nextSession?.user.email?.toLowerCase();
@@ -211,22 +270,126 @@ export default function AdminPage() {
         .order("created_at", { ascending: true }),
     ]);
 
-    if (siteResult.error || projectResult.error || certificateResult.error) {
-      const error =
-        siteResult.error ?? projectResult.error ?? certificateResult.error;
-      setSetupNeeded(true);
-      setNotice(
-        `${friendlyError(error)} Run supabase/schema.sql once in the Supabase SQL Editor.`,
-      );
-      setRecordsBusy(false);
-      return;
+    const issues: string[] = [];
+
+    if (siteResult.error) {
+      issues.push(`Full text editor: ${friendlyError(siteResult.error)}`);
+    } else {
+      if (!siteResult.data) {
+        const seedResult = await supabase
+          .from("portfolio_site_content")
+          .upsert(
+            { id: "main", content: fallbackSiteContent },
+            { onConflict: "id" },
+          )
+          .select("content")
+          .single();
+        if (seedResult.error) {
+          issues.push(
+            `Full text editor setup: ${friendlyError(seedResult.error)}`,
+          );
+        } else {
+          setSiteContent(normalizeSiteContent(seedResult.data.content));
+        }
+      } else {
+        setSiteContent(normalizeSiteContent(siteResult.data.content));
+      }
     }
 
-    setSiteContent(normalizeSiteContent(siteResult.data?.content));
-    setProjects((projectResult.data ?? []) as PortfolioProject[]);
-    setCertificates(
-      (certificateResult.data ?? []) as PortfolioCertificate[],
-    );
+    if (projectResult.error) {
+      issues.push(`Projects: ${friendlyError(projectResult.error)}`);
+    } else {
+      let projectRows = (projectResult.data ?? []) as PortfolioProject[];
+      if (!projectRows.length) {
+        const starterProjects = fallbackProjects.map((project) => ({
+          slug: project.slug,
+          title: project.title,
+          category: project.category,
+          description: project.description,
+          tags: project.tags,
+          features: project.features,
+          github_url: project.github_url,
+          live_url: project.live_url,
+          display_order: project.display_order,
+          published: project.published,
+        }));
+        const seedResult = await supabase
+          .from("portfolio_projects")
+          .upsert(starterProjects, { onConflict: "slug" });
+        if (seedResult.error) {
+          issues.push(`Project import: ${friendlyError(seedResult.error)}`);
+        } else {
+          const refreshed = await supabase
+            .from("portfolio_projects")
+            .select("*")
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: true });
+          if (refreshed.error) {
+            issues.push(`Projects: ${friendlyError(refreshed.error)}`);
+          } else {
+            projectRows = (refreshed.data ?? []) as PortfolioProject[];
+          }
+        }
+      }
+      setProjects(projectRows);
+    }
+
+    if (certificateResult.error) {
+      issues.push(`Certificates: ${friendlyError(certificateResult.error)}`);
+    } else {
+      let certificateRows = (certificateResult.data ??
+        []) as PortfolioCertificate[];
+      if (!certificateRows.length) {
+        const starterCertificates = fallbackCertificates.map(
+          (certificate) => ({
+            slug: certificate.slug,
+            name: certificate.name,
+            issuer: certificate.issuer,
+            badge: certificate.badge,
+            icon: certificate.icon,
+            issued_on: certificate.issued_on,
+            credential_url: certificate.credential_url,
+            display_order: certificate.display_order,
+            published: certificate.published,
+          }),
+        );
+        const seedResult = await supabase
+          .from("portfolio_certificates")
+          .upsert(starterCertificates, { onConflict: "slug" });
+        if (seedResult.error) {
+          issues.push(
+            `Certificate import: ${friendlyError(seedResult.error)}`,
+          );
+        } else {
+          const refreshed = await supabase
+            .from("portfolio_certificates")
+            .select("*")
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: true });
+          if (refreshed.error) {
+            issues.push(`Certificates: ${friendlyError(refreshed.error)}`);
+          } else {
+            certificateRows = (refreshed.data ??
+              []) as PortfolioCertificate[];
+          }
+        }
+      }
+      setCertificates(certificateRows);
+    }
+
+    if (issues.length) {
+      setSetupNeeded(
+        issues.some(
+          (issue) =>
+            issue.includes("portfolio_site_content") ||
+            issue.includes("deleted_at") ||
+            issue.includes("schema cache"),
+        ),
+      );
+      setNotice(
+        `${issues.join(" · ")}. Run the latest supabase/schema.sql once; available project and certificate records are still shown below.`,
+      );
+    }
     setRecordsBusy(false);
   }, []);
 
@@ -286,13 +449,17 @@ export default function AdminPage() {
     setRecordsBusy(true);
     setSetupNeeded(false);
     setNotice("");
-    const { error } = await supabase.from("portfolio_site_content").upsert(
-      {
-        id: "main",
-        content: siteContent,
-      },
-      { onConflict: "id" },
-    );
+    const { data, error } = await supabase
+      .from("portfolio_site_content")
+      .upsert(
+        {
+          id: "main",
+          content: siteContent,
+        },
+        { onConflict: "id" },
+      )
+      .select("content")
+      .single();
 
     if (error) {
       setSetupNeeded(error.message.includes("portfolio_site_content"));
@@ -307,7 +474,11 @@ export default function AdminPage() {
       return;
     }
 
-    setNotice("Portfolio content saved. The public page will refresh it.");
+    setSiteContent(normalizeSiteContent(data.content));
+    announceContentUpdate();
+    setNotice(
+      "Portfolio content saved and published. Open portfolio tabs refresh automatically.",
+    );
     setRecordsBusy(false);
   };
 
@@ -369,6 +540,7 @@ export default function AdminPage() {
     }
 
     setSiteContent(updatedContent);
+    announceContentUpdate();
     setNotice("Profile picture uploaded and published.");
     setUploadBusy(false);
   };
@@ -377,6 +549,7 @@ export default function AdminPage() {
     event.preventDefault();
     setRecordsBusy(true);
     setNotice("");
+    const editingExisting = Boolean(projectDraft.id);
 
     const payload = {
       slug: slugify(projectDraft.title),
@@ -405,14 +578,20 @@ export default function AdminPage() {
     }
 
     setProjectDraft(emptyProject());
-    setNotice(projectDraft.id ? "Project updated." : "Project added.");
     await loadRecords();
+    announceContentUpdate();
+    setNotice(
+      editingExisting
+        ? "Project updated and published."
+        : "Project added and published.",
+    );
   };
 
   const saveCertificate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setRecordsBusy(true);
     setNotice("");
+    const editingExisting = Boolean(certificateDraft.id);
 
     const payload = {
       slug: slugify(certificateDraft.name),
@@ -440,10 +619,13 @@ export default function AdminPage() {
     }
 
     setCertificateDraft(emptyCertificate());
-    setNotice(
-      certificateDraft.id ? "Certificate updated." : "Certificate added.",
-    );
     await loadRecords();
+    announceContentUpdate();
+    setNotice(
+      editingExisting
+        ? "Certificate updated and published."
+        : "Certificate added and published.",
+    );
   };
 
   const deleteRecord = async (
@@ -451,16 +633,103 @@ export default function AdminPage() {
     id: string,
     label: string,
   ) => {
-    if (!window.confirm(`Delete “${label}”? This cannot be undone.`)) return;
+    if (
+      !window.confirm(
+        `Move “${label}” to Recently Deleted? You can restore it anytime.`,
+      )
+    ) {
+      return;
+    }
     setRecordsBusy(true);
-    const { error } = await supabase.from(table).delete().eq("id", id);
+    const { error } = await supabase
+      .from(table)
+      .update({
+        deleted_at: new Date().toISOString(),
+        published: false,
+      })
+      .eq("id", id);
+    if (error) {
+      setSetupNeeded(error.message.includes("deleted_at"));
+      setNotice(
+        `${friendlyError(error)}${
+          error.message.includes("deleted_at")
+            ? " Run the latest supabase/schema.sql once to enable recoverable deletion."
+            : ""
+        }`,
+      );
+      setRecordsBusy(false);
+      return;
+    }
+    await loadRecords();
+    announceContentUpdate();
+    setNotice(`${label} moved to Recently Deleted. You can restore it below.`);
+  };
+
+  const restoreRecord = async (
+    table: "portfolio_projects" | "portfolio_certificates",
+    id: string,
+    label: string,
+  ) => {
+    setRecordsBusy(true);
+    setNotice("");
+    const { error } = await supabase
+      .from(table)
+      .update({
+        deleted_at: null,
+        published: true,
+      })
+      .eq("id", id);
     if (error) {
       setNotice(friendlyError(error));
       setRecordsBusy(false);
       return;
     }
-    setNotice(`${label} deleted.`);
     await loadRecords();
+    announceContentUpdate();
+    setNotice(`${label} restored and published.`);
+  };
+
+  const moveRecord = async (
+    table: "portfolio_projects" | "portfolio_certificates",
+    records: Array<PortfolioProject | PortfolioCertificate>,
+    id: string,
+    direction: -1 | 1,
+  ) => {
+    const currentIndex = records.findIndex((record) => record.id === id);
+    const nextIndex = currentIndex + direction;
+    if (
+      currentIndex < 0 ||
+      nextIndex < 0 ||
+      nextIndex >= records.length
+    ) {
+      return;
+    }
+
+    const reordered = [...records];
+    [reordered[currentIndex], reordered[nextIndex]] = [
+      reordered[nextIndex],
+      reordered[currentIndex],
+    ];
+
+    setRecordsBusy(true);
+    setNotice("");
+    const updates = await Promise.all(
+      reordered.map((record, index) =>
+        supabase
+          .from(table)
+          .update({ display_order: index + 1 })
+          .eq("id", record.id),
+      ),
+    );
+    const failedUpdate = updates.find((result) => result.error);
+    if (failedUpdate?.error) {
+      setNotice(friendlyError(failedUpdate.error));
+      setRecordsBusy(false);
+      return;
+    }
+    await loadRecords();
+    announceContentUpdate();
+    setNotice("Display order updated and published.");
   };
 
   const editProject = (project: PortfolioProject) => {
@@ -622,15 +891,17 @@ export default function AdminPage() {
         <div className="admin-stats">
           <article>
             <span>Total projects</span>
-            <strong>{projects.length}</strong>
+            <strong>{activeProjects.length}</strong>
           </article>
           <article>
             <span>Published projects</span>
-            <strong>{projects.filter((item) => item.published).length}</strong>
+            <strong>
+              {activeProjects.filter((item) => item.published).length}
+            </strong>
           </article>
           <article>
             <span>Certificates</span>
-            <strong>{certificates.length}</strong>
+            <strong>{activeCertificates.length}</strong>
           </article>
           <article>
             <span>Editable sections</span>
@@ -665,10 +936,23 @@ export default function AdminPage() {
 
         {siteEditorSections.has(activeTab) ? (
           <div className="admin-site-workspace">
+            <div className="admin-history-bar">
+              <span>
+                Every repeatable card has position controls. Removed content
+                can be restored with Undo before saving.
+              </span>
+              <button
+                disabled={!siteUndoStack.length || recordsBusy}
+                onClick={undoSiteDraft}
+                type="button"
+              >
+                ↶ Undo last change
+              </button>
+            </div>
             <FullContentEditor
               busy={recordsBusy}
               content={siteContent}
-              onChange={setSiteContent}
+              onChange={updateSiteDraft}
               onSave={() => void saveSiteContent()}
               onUploadProfile={(file) => void uploadProfilePicture(file)}
               section={activeTab as SiteEditorSection}
@@ -850,14 +1134,53 @@ export default function AdminPage() {
                   Refresh
                 </button>
               </div>
-              {recordsBusy && !projects.length ? (
+              {recordsBusy && !activeProjects.length ? (
                 <div className="admin-list-empty">Loading projects…</div>
-              ) : projects.length ? (
+              ) : activeProjects.length ? (
                 <div className="admin-record-list">
-                  {projects.map((project) => (
+                  {activeProjects.map((project, index) => (
                     <article key={project.id}>
-                      <div className="admin-record-order">
-                        {String(project.display_order).padStart(2, "0")}
+                      <div className="admin-record-position">
+                        <div className="admin-record-order">
+                          {String(project.display_order).padStart(2, "0")}
+                        </div>
+                        <div className="admin-order-controls">
+                          <button
+                            aria-label={`Move ${project.title} up`}
+                            disabled={recordsBusy || index === 0}
+                            onClick={() =>
+                              void moveRecord(
+                                "portfolio_projects",
+                                activeProjects,
+                                project.id,
+                                -1,
+                              )
+                            }
+                            title="Move up"
+                            type="button"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            aria-label={`Move ${project.title} down`}
+                            disabled={
+                              recordsBusy ||
+                              index === activeProjects.length - 1
+                            }
+                            onClick={() =>
+                              void moveRecord(
+                                "portfolio_projects",
+                                activeProjects,
+                                project.id,
+                                1,
+                              )
+                            }
+                            title="Move down"
+                            type="button"
+                          >
+                            ↓
+                          </button>
+                        </div>
                       </div>
                       <div className="admin-record-content">
                         <div>
@@ -900,6 +1223,32 @@ export default function AdminPage() {
                   No projects yet. Add the first one from the form.
                 </div>
               )}
+              {deletedProjects.length ? (
+                <div className="admin-trash">
+                  <div className="admin-trash-title">
+                    <span>RECENTLY DELETED</span>
+                    <strong>{deletedProjects.length} recoverable</strong>
+                  </div>
+                  {deletedProjects.map((project) => (
+                    <div className="admin-trash-row" key={project.id}>
+                      <span>{project.title}</span>
+                      <button
+                        disabled={recordsBusy}
+                        onClick={() =>
+                          void restoreRecord(
+                            "portfolio_projects",
+                            project.id,
+                            project.title,
+                          )
+                        }
+                        type="button"
+                      >
+                        ↶ Restore
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </section>
           </div>
         ) : (
@@ -1068,14 +1417,53 @@ export default function AdminPage() {
                   Refresh
                 </button>
               </div>
-              {recordsBusy && !certificates.length ? (
+              {recordsBusy && !activeCertificates.length ? (
                 <div className="admin-list-empty">Loading certificates…</div>
-              ) : certificates.length ? (
+              ) : activeCertificates.length ? (
                 <div className="admin-record-list">
-                  {certificates.map((certificate) => (
+                  {activeCertificates.map((certificate, index) => (
                     <article key={certificate.id}>
-                      <div className="admin-record-order admin-record-icon">
-                        {certificate.icon}
+                      <div className="admin-record-position">
+                        <div className="admin-record-order admin-record-icon">
+                          {certificate.icon}
+                        </div>
+                        <div className="admin-order-controls">
+                          <button
+                            aria-label={`Move ${certificate.name} up`}
+                            disabled={recordsBusy || index === 0}
+                            onClick={() =>
+                              void moveRecord(
+                                "portfolio_certificates",
+                                activeCertificates,
+                                certificate.id,
+                                -1,
+                              )
+                            }
+                            title="Move up"
+                            type="button"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            aria-label={`Move ${certificate.name} down`}
+                            disabled={
+                              recordsBusy ||
+                              index === activeCertificates.length - 1
+                            }
+                            onClick={() =>
+                              void moveRecord(
+                                "portfolio_certificates",
+                                activeCertificates,
+                                certificate.id,
+                                1,
+                              )
+                            }
+                            title="Move down"
+                            type="button"
+                          >
+                            ↓
+                          </button>
+                        </div>
                       </div>
                       <div className="admin-record-content">
                         <div>
@@ -1125,6 +1513,32 @@ export default function AdminPage() {
                   No certificates yet. Add the first one from the form.
                 </div>
               )}
+              {deletedCertificates.length ? (
+                <div className="admin-trash">
+                  <div className="admin-trash-title">
+                    <span>RECENTLY DELETED</span>
+                    <strong>{deletedCertificates.length} recoverable</strong>
+                  </div>
+                  {deletedCertificates.map((certificate) => (
+                    <div className="admin-trash-row" key={certificate.id}>
+                      <span>{certificate.name}</span>
+                      <button
+                        disabled={recordsBusy}
+                        onClick={() =>
+                          void restoreRecord(
+                            "portfolio_certificates",
+                            certificate.id,
+                            certificate.name,
+                          )
+                        }
+                        type="button"
+                      >
+                        ↶ Restore
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </section>
           </div>
         )}

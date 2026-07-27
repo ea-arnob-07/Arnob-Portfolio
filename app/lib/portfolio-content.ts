@@ -10,6 +10,7 @@ export type PortfolioProject = {
   live_url: string | null;
   display_order: number;
   published: boolean;
+  deleted_at?: string | null;
 };
 
 export type PortfolioCertificate = {
@@ -23,6 +24,7 @@ export type PortfolioCertificate = {
   credential_url: string | null;
   display_order: number;
   published: boolean;
+  deleted_at?: string | null;
 };
 
 export type PortfolioContent = {
@@ -50,6 +52,7 @@ export const fallbackProjects: PortfolioProject[] = [
     live_url: null,
     display_order: 1,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-shell-system-administration-toolkit",
@@ -69,6 +72,7 @@ export const fallbackProjects: PortfolioProject[] = [
     live_url: null,
     display_order: 2,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-logicscript-compiler",
@@ -88,6 +92,7 @@ export const fallbackProjects: PortfolioProject[] = [
     live_url: null,
     display_order: 3,
     published: true,
+    deleted_at: null,
   },
 ];
 
@@ -103,6 +108,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 1,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-ai-agents-for-beginners",
@@ -115,6 +121,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 2,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-embedded-system-iot-workshop",
@@ -127,6 +134,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 3,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-academic-excellence-award",
@@ -139,6 +147,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 4,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-district-mathematics-olympiad",
@@ -151,6 +160,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 5,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-skillup-certification",
@@ -163,6 +173,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 6,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-goedu-certification",
@@ -175,6 +186,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 7,
     published: true,
+    deleted_at: null,
   },
   {
     id: "fallback-aws-academy-certification",
@@ -187,6 +199,7 @@ export const fallbackCertificates: PortfolioCertificate[] = [
     credential_url: null,
     display_order: 8,
     published: true,
+    deleted_at: null,
   },
 ];
 

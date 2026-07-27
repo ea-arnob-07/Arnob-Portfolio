@@ -6,6 +6,7 @@
 :root {
   --bg: #010617;
   --bg2: #06112f;
+  --section-wave-bg: rgba(4, 13, 43, .58);
   --surface: rgba(255, 255, 255, 0.03);
   --border: rgba(255, 255, 255, 0.08);
   --border2: rgba(100, 180, 255, 0.2);
@@ -392,13 +393,7 @@ section {
 }
 
 .portfolio-content section {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(4, 13, 43, .2) 0%,
-      rgba(4, 13, 43, .28) 50%,
-      rgba(4, 13, 43, .22) 100%
-    );
+  background: var(--section-wave-bg);
 }
 
 .container {
@@ -426,7 +421,7 @@ section {
 }
 
 .wave path {
-  fill: rgba(4, 13, 43, .58);
+  fill: var(--section-wave-bg);
 }
 
 /* REVEAL ANIMATIONS */

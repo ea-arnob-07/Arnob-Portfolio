@@ -23,7 +23,10 @@ import {
   OPPORTUNITY_SUBJECT,
 } from "./lib/contact-links";
 import { fallbackPortfolioContent } from "./lib/portfolio-content";
-import { fetchPublishedPortfolioContent } from "./lib/supabase";
+import {
+  fetchPublishedPortfolioContent,
+  supabase,
+} from "./lib/supabase";
 import { portfolioMarkup } from "./portfolio-markup";
 import { buildPremiumPortfolioMarkup } from "./premium-markup";
 
@@ -460,15 +463,64 @@ export function PortfolioExperience() {
     const refreshVisibleContent = () => {
       if (document.visibilityState === "visible") void loadContent();
     };
+    const refreshFromAdmin = () => void loadContent();
+    const refreshFromStorage = (event: StorageEvent) => {
+      if (event.key === "arnob-portfolio-content-version") {
+        void loadContent();
+      }
+    };
+    const contentChannel = supabase
+      .channel("portfolio-public-content")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_site_content",
+        },
+        refreshFromAdmin,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_projects",
+        },
+        refreshFromAdmin,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_certificates",
+        },
+        refreshFromAdmin,
+      )
+      .subscribe();
 
     void loadContent();
+    const refreshTimer = window.setInterval(loadContent, 30_000);
     window.addEventListener("focus", loadContent);
+    window.addEventListener(
+      "arnob-portfolio-content-updated",
+      refreshFromAdmin,
+    );
+    window.addEventListener("storage", refreshFromStorage);
     document.addEventListener("visibilitychange", refreshVisibleContent);
 
     return () => {
       isActive = false;
+      window.clearInterval(refreshTimer);
       window.removeEventListener("focus", loadContent);
+      window.removeEventListener(
+        "arnob-portfolio-content-updated",
+        refreshFromAdmin,
+      );
+      window.removeEventListener("storage", refreshFromStorage);
       document.removeEventListener("visibilitychange", refreshVisibleContent);
+      void supabase.removeChannel(contentChannel);
     };
   }, []);
 

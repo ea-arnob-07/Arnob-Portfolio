@@ -499,6 +499,41 @@ body:has(.admin-shell) {
   color: #f5bd58;
 }
 
+.admin-history-bar {
+  display: flex;
+  margin-bottom: 14px;
+  padding: 11px 14px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid rgba(0, 229, 255, .15);
+  border-radius: 12px;
+  background: rgba(0, 195, 226, .045);
+}
+
+.admin-history-bar span {
+  color: #8296bd;
+  font-size: .69rem;
+  line-height: 1.5;
+}
+
+.admin-history-bar button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 229, 255, .22);
+  border-radius: 8px;
+  background: rgba(0, 194, 227, .07);
+  color: #9defff;
+  font-family: var(--fb);
+  font-size: .64rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-history-bar button:disabled {
+  opacity: .38;
+}
+
 .admin-workspace {
   display: grid;
   grid-template-columns: minmax(320px, .83fr) minmax(450px, 1.17fr);
@@ -667,6 +702,44 @@ body:has(.admin-shell) {
   font-size: .65rem;
 }
 
+.admin-record-position {
+  display: grid;
+  gap: 7px;
+}
+
+.admin-order-controls,
+.admin-compact-order {
+  display: flex;
+  gap: 4px;
+}
+
+.admin-order-controls button,
+.admin-compact-order button {
+  display: grid;
+  width: 19px;
+  min-width: 19px;
+  height: 22px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgba(0, 229, 255, .16);
+  border-radius: 6px;
+  background: rgba(0, 194, 227, .055);
+  color: #82ddeb;
+  font-family: var(--fm);
+  font-size: .66rem;
+}
+
+.admin-order-controls button:hover:not(:disabled),
+.admin-compact-order button:hover:not(:disabled) {
+  border-color: rgba(0, 229, 255, .45);
+  color: white;
+}
+
+.admin-order-controls button:disabled,
+.admin-compact-order button:disabled {
+  opacity: .25;
+}
+
 .admin-record-icon {
   font-size: 1.05rem;
 }
@@ -772,6 +845,59 @@ body:has(.admin-shell) {
   color: #ff9292;
 }
 
+.admin-trash {
+  display: grid;
+  padding: 18px 22px 21px;
+  gap: 8px;
+  border-top: 1px solid rgba(248, 113, 113, .13);
+  background: rgba(248, 113, 113, .025);
+}
+
+.admin-trash-title,
+.admin-trash-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-trash-title {
+  margin-bottom: 3px;
+}
+
+.admin-trash-title span {
+  color: #d98e9b;
+  font-family: var(--fm);
+  font-size: .55rem;
+  letter-spacing: .11em;
+}
+
+.admin-trash-title strong {
+  color: #7f8fab;
+  font-size: .63rem;
+}
+
+.admin-trash-row {
+  padding: 9px 10px;
+  border: 1px solid rgba(248, 113, 113, .11);
+  border-radius: 9px;
+  background: rgba(3, 10, 28, .48);
+  color: #aab7d1;
+  font-size: .7rem;
+}
+
+.admin-trash-row button {
+  min-height: 29px;
+  padding: 0 9px;
+  border: 1px solid rgba(16, 185, 129, .2);
+  border-radius: 7px;
+  background: rgba(16, 185, 129, .06);
+  color: #69dbb3;
+  font-family: var(--fb);
+  font-size: .6rem;
+  font-weight: 700;
+}
+
 .admin-list-empty {
   display: grid;
   min-height: 220px;
@@ -855,6 +981,50 @@ body:has(.admin-shell) {
     linear-gradient(145deg, rgba(15, 33, 74, .56), rgba(4, 12, 35, .66));
 }
 
+.admin-item-order {
+  display: flex;
+  min-height: 29px;
+  padding-bottom: 9px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(103, 137, 210, .11);
+}
+
+.admin-item-order > span {
+  color: #6e82ad;
+  font-family: var(--fm);
+  font-size: .52rem;
+  letter-spacing: .1em;
+}
+
+.admin-item-order > div {
+  display: flex;
+  gap: 5px;
+}
+
+.admin-item-order button {
+  display: grid;
+  width: 29px;
+  height: 27px;
+  place-items: center;
+  border: 1px solid rgba(0, 229, 255, .17);
+  border-radius: 7px;
+  background: rgba(0, 194, 227, .055);
+  color: #83e9f7;
+  font-family: var(--fm);
+}
+
+.admin-item-order button:hover:not(:disabled) {
+  border-color: rgba(0, 229, 255, .45);
+  background: rgba(0, 194, 227, .11);
+  color: white;
+}
+
+.admin-item-order button:disabled {
+  opacity: .25;
+}
+
 .admin-nested-card {
   display: grid;
   padding: 16px;
@@ -919,9 +1089,19 @@ body:has(.admin-shell) {
 
 .admin-skill-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(100px, .4fr) 38px;
+  grid-template-columns:
+    minmax(0, 1.6fr)
+    minmax(100px, .4fr)
+    42px
+    38px;
   gap: 10px;
   align-items: end;
+}
+
+.admin-compact-order {
+  display: grid;
+  grid-template-columns: repeat(2, 19px);
+  align-self: end;
 }
 
 .admin-form-grid.icon-grid {
@@ -1150,11 +1330,12 @@ body:has(.admin-shell) {
   }
 
   .admin-skill-row {
-    grid-template-columns: minmax(0, 1fr) 95px 38px;
+    grid-template-columns: minmax(0, 1fr) minmax(72px, .45fr) 42px 38px;
   }
 
   .admin-profile-editor,
-  .admin-save-bar {
+  .admin-save-bar,
+  .admin-history-bar {
     align-items: stretch;
     flex-direction: column;
   }

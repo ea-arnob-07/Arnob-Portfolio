@@ -30,6 +30,17 @@ export const supabase = createClient(
       detectSessionInUrl: true,
       persistSession: true,
     },
+    global: {
+      fetch: (input, init) => {
+        const headers = new Headers(init?.headers);
+        headers.set("cache-control", "no-cache");
+        return fetch(input, {
+          ...init,
+          cache: "no-store",
+          headers,
+        });
+      },
+    },
   },
 );
 
@@ -37,7 +48,7 @@ export async function fetchPublishedPortfolioContent(): Promise<PortfolioContent
   const [siteResult, projectsResult, certificatesResult] = await Promise.all([
     supabase
       .from("portfolio_site_content")
-      .select("content")
+      .select("content, updated_at")
       .eq("id", "main")
       .maybeSingle(),
     supabase

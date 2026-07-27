@@ -192,6 +192,85 @@ function EmptyHint({ children }: { children: ReactNode }) {
   return <div className="admin-list-empty compact">{children}</div>;
 }
 
+function moveArrayItem<T>(
+  items: T[],
+  index: number,
+  direction: -1 | 1,
+) {
+  const nextIndex = index + direction;
+  if (nextIndex < 0 || nextIndex >= items.length) return;
+  [items[index], items[nextIndex]] = [items[nextIndex], items[index]];
+}
+
+function ItemOrderControls({
+  index,
+  total,
+  onMove,
+}: {
+  index: number;
+  total: number;
+  onMove: (direction: -1 | 1) => void;
+}) {
+  return (
+    <div className="admin-item-order" aria-label="Position controls">
+      <span>POSITION {String(index + 1).padStart(2, "0")}</span>
+      <div>
+        <button
+          aria-label="Move up"
+          disabled={index === 0}
+          onClick={() => onMove(-1)}
+          title="Move up"
+          type="button"
+        >
+          ↑
+        </button>
+        <button
+          aria-label="Move down"
+          disabled={index === total - 1}
+          onClick={() => onMove(1)}
+          title="Move down"
+          type="button"
+        >
+          ↓
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CompactOrderControls({
+  index,
+  total,
+  onMove,
+}: {
+  index: number;
+  total: number;
+  onMove: (direction: -1 | 1) => void;
+}) {
+  return (
+    <div className="admin-compact-order" aria-label="Position controls">
+      <button
+        aria-label="Move up"
+        disabled={index === 0}
+        onClick={() => onMove(-1)}
+        title="Move up"
+        type="button"
+      >
+        ↑
+      </button>
+      <button
+        aria-label="Move down"
+        disabled={index === total - 1}
+        onClick={() => onMove(1)}
+        title="Move down"
+        type="button"
+      >
+        ↓
+      </button>
+    </div>
+  );
+}
+
 export function FullContentEditor({
   section,
   content,
@@ -320,6 +399,15 @@ export function FullContentEditor({
           <div className="admin-array-grid">
             {hero.stats.map((stat, index) => (
               <div className="admin-array-card" key={`stat-${index}`}>
+                <ItemOrderControls
+                  index={index}
+                  onMove={(direction) =>
+                    mutate((draft) =>
+                      moveArrayItem(draft.hero.stats, index, direction),
+                    )
+                  }
+                  total={hero.stats.length}
+                />
                 <div className="admin-form-grid">
                   <Field
                     label="Value"
@@ -375,6 +463,19 @@ export function FullContentEditor({
           <div className="admin-array-grid">
             {hero.orbitLabels.map((label, index) => (
               <div className="admin-array-card" key={`orbit-${index}`}>
+                <ItemOrderControls
+                  index={index}
+                  onMove={(direction) =>
+                    mutate((draft) =>
+                      moveArrayItem(
+                        draft.hero.orbitLabels,
+                        index,
+                        direction,
+                      ),
+                    )
+                  }
+                  total={hero.orbitLabels.length}
+                />
                 <div className="admin-form-grid">
                   <Field
                     label="Large text"
@@ -455,6 +556,19 @@ export function FullContentEditor({
           </div>
           {about.paragraphs.map((paragraph, index) => (
             <div className="admin-array-card" key={`paragraph-${index}`}>
+              <ItemOrderControls
+                index={index}
+                onMove={(direction) =>
+                  mutate((draft) =>
+                    moveArrayItem(
+                      draft.about.paragraphs,
+                      index,
+                      direction,
+                    ),
+                  )
+                }
+                total={about.paragraphs.length}
+              />
               <TextAreaField
                 label={`Paragraph ${index + 1}`}
                 onChange={(value) =>
@@ -505,6 +619,15 @@ export function FullContentEditor({
           </div>
           {about.info.map((item, index) => (
             <div className="admin-array-card" key={`info-${index}`}>
+              <ItemOrderControls
+                index={index}
+                onMove={(direction) =>
+                  mutate((draft) =>
+                    moveArrayItem(draft.about.info, index, direction),
+                  )
+                }
+                total={about.info.length}
+              />
               <div className="admin-form-grid">
                 <Field
                   label="Label"
@@ -606,6 +729,19 @@ export function FullContentEditor({
                 <i>{group.categories.length} categories</i>
               </summary>
               <div className="admin-details-body">
+                <ItemOrderControls
+                  index={groupIndex}
+                  onMove={(direction) =>
+                    mutate((draft) =>
+                      moveArrayItem(
+                        draft.skills.groups,
+                        groupIndex,
+                        direction,
+                      ),
+                    )
+                  }
+                  total={content.skills.groups.length}
+                />
                 <div className="admin-form-grid">
                   <Field
                     label="Tab ID"
@@ -632,6 +768,19 @@ export function FullContentEditor({
                     className="admin-nested-card"
                     key={`category-${categoryIndex}`}
                   >
+                    <ItemOrderControls
+                      index={categoryIndex}
+                      onMove={(direction) =>
+                        mutate((draft) =>
+                          moveArrayItem(
+                            draft.skills.groups[groupIndex].categories,
+                            categoryIndex,
+                            direction,
+                          ),
+                        )
+                      }
+                      total={group.categories.length}
+                    />
                     <div className="admin-form-grid icon-grid">
                       <Field
                         label="Icon"
@@ -686,6 +835,21 @@ export function FullContentEditor({
                           }
                           type="number"
                           value={skill.level}
+                        />
+                        <CompactOrderControls
+                          index={skillIndex}
+                          onMove={(direction) =>
+                            mutate((draft) =>
+                              moveArrayItem(
+                                draft.skills.groups[groupIndex].categories[
+                                  categoryIndex
+                                ].skills,
+                                skillIndex,
+                                direction,
+                              ),
+                            )
+                          }
+                          total={category.skills.length}
                         />
                         <button
                           aria-label={`Remove ${skill.name}`}
@@ -1005,6 +1169,19 @@ export function FullContentEditor({
         />
         {content.research.items.map((item, index) => (
           <div className="admin-array-card" key={`research-${index}`}>
+            <ItemOrderControls
+              index={index}
+              onMove={(direction) =>
+                mutate((draft) =>
+                  moveArrayItem(
+                    draft.research.items,
+                    index,
+                    direction,
+                  ),
+                )
+              }
+              total={content.research.items.length}
+            />
             <div className="admin-card-number">
               RESEARCH {String(index + 1).padStart(2, "0")}
             </div>
@@ -1094,6 +1271,19 @@ export function FullContentEditor({
         />
         {content.experience.items.map((item, index) => (
           <div className="admin-array-card" key={`experience-${index}`}>
+            <ItemOrderControls
+              index={index}
+              onMove={(direction) =>
+                mutate((draft) =>
+                  moveArrayItem(
+                    draft.experience.items,
+                    index,
+                    direction,
+                  ),
+                )
+              }
+              total={content.experience.items.length}
+            />
             <div className="admin-card-number">
               TIMELINE {String(index + 1).padStart(2, "0")}
             </div>
@@ -1267,6 +1457,19 @@ export function FullContentEditor({
                   }
                   value={point.text}
                 />
+                <CompactOrderControls
+                  index={index}
+                  onMove={(direction) =>
+                    mutate((draft) =>
+                      moveArrayItem(
+                        draft.workshop.points,
+                        index,
+                        direction,
+                      ),
+                    )
+                  }
+                  total={content.workshop.points.length}
+                />
                 <button
                   className="admin-icon-button danger"
                   onClick={() =>
@@ -1311,6 +1514,19 @@ export function FullContentEditor({
             />
             {content.activities.items.map((item, index) => (
               <div className="admin-nested-card" key={`activity-${index}`}>
+                <ItemOrderControls
+                  index={index}
+                  onMove={(direction) =>
+                    mutate((draft) =>
+                      moveArrayItem(
+                        draft.activities.items,
+                        index,
+                        direction,
+                      ),
+                    )
+                  }
+                  total={content.activities.items.length}
+                />
                 <div className="admin-form-grid icon-grid">
                   <Field
                     label="Icon"
@@ -1499,6 +1715,19 @@ export function FullContentEditor({
               </span>
             </summary>
             <div className="admin-details-body">
+              <ItemOrderControls
+                index={index}
+                onMove={(direction) =>
+                  mutate((draft) =>
+                    moveArrayItem(
+                      draft.social.platforms,
+                      index,
+                      direction,
+                    ),
+                  )
+                }
+                total={content.social.platforms.length}
+              />
               <label>
                 Platform
                 <select
